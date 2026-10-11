@@ -1,0 +1,15 @@
+{
+	"name": "unihive",
+	"version": "0.1.0",
+	"private": true,
+	"description": "UniHive (Unigator) – WordPress prototype plugin, local demo and written proposal.",
+	"scripts": {
+		"start": "npx -y @wp-playground/cli@latest start --path=./unihive --blueprint=./blueprint.json --port=9400 --login=false",
+		"reset": "npx -y @wp-playground/cli@latest start --path=./unihive --blueprint=./blueprint.json --port=9400 --login=false --reset",
+		"screenshots": "node tools/screenshots.mjs",
+		"pdf": "node tools/build-pdf.mjs"
+	},
+	"devDependencies": {
+		"playwright-core": "^1.55.0"
+	}
+}

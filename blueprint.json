@@ -1,0 +1,37 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "UniHive demo",
+		"description": "WordPress with the UniHive plugin, demo members and sample posts.",
+		"author": "Unigator"
+	},
+	"landingPage": "/unihive/",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_ENVIRONMENT_TYPE": "local"
+			}
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"blogname": "Unigator",
+				"blogdescription": "UniHive prototype (local demo)",
+				"permalink_structure": "/%postname%/"
+			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "unihive/unihive.php"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php require '/wordpress/wp-load.php'; foreach ( array( 'sample-page' => 'page', 'hello-world' => 'post' ) as $slug => $type ) { $p = get_page_by_path( $slug, OBJECT, $type ); if ( $p ) { wp_delete_post( $p->ID, true ); } } unihive_seed_demo( true ); flush_rewrite_rules();"
+		}
+	]
+}

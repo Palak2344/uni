@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UniHive on WordPress</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+	:root {
+		--ink: #0f3430;
+		--ink-2: #092421;
+		--lime: #e4ea6b;
+		--bg: #eff1f2;
+		--line: #d7dddc;
+		--muted: #56625f;
+		--accent: #6f7a0f;
+	}
+	@page { size: A4; margin: 16mm 16mm 18mm; }
+	* { box-sizing: border-box; }
+	html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	body {
+		margin: 0;
+		background: #fff;
+		color: var(--ink-2);
+		font: 10.2pt/1.5 "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+	}
+	main { max-width: 178mm; margin: 0 auto; }
+	h1, h2, h3 { color: var(--ink); line-height: 1.2; }
+	h1 { font-size: 25pt; margin: 0 0 4px; letter-spacing: -.01em; }
+	h2 {
+		font-size: 15pt;
+		margin: 22px 0 8px;
+		padding-top: 10px;
+		border-top: 2px solid var(--ink);
+		break-after: avoid;
+	}
+	h2 .num { display: inline-block; min-width: 1.5em; color: var(--accent); }
+	h3 { font-size: 11.5pt; margin: 16px 0 6px; break-after: avoid; }
+	p { margin: 0 0 8px; }
+	ul, ol { margin: 0 0 8px; padding-left: 1.3em; }
+	li { margin: 2px 0; }
+	code { font: 8.8pt/1.3 Consolas, "Cascadia Mono", monospace; background: var(--bg); padding: 0 3px; border-radius: 3px; }
+	strong { color: var(--ink-2); }
+	a { color: var(--ink); }
+
+	.cover {
+		background: var(--ink);
+		color: #fff;
+		border-radius: 10px;
+		padding: 22px 24px 20px;
+		margin-bottom: 14px;
+	}
+	.cover h1 { color: #fff; }
+	.eyebrow { color: var(--lime); font-size: 8.5pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
+	.cover .sub { font-size: 11.5pt; color: #d9e3e1; margin: 6px 0 12px; }
+	.cover .byline { font-size: 9pt; color: #b9c9c6; margin: 0; }
+
+	.tldr {
+		border: 1px solid var(--line);
+		border-left: 5px solid var(--lime);
+		border-radius: 8px;
+		padding: 12px 16px 6px;
+		background: #fbfcf2;
+		break-inside: avoid;
+	}
+	.tldr h3 { margin: 0 0 6px; }
+
+	table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; font-size: 9pt; break-inside: avoid; }
+	th, td { text-align: left; vertical-align: top; padding: 5px 7px; border-bottom: 1px solid var(--line); }
+	thead th { background: var(--ink); color: #fff; font-weight: 600; border-bottom: 0; }
+	thead th:first-child { border-top-left-radius: 6px; }
+	thead th:last-child { border-top-right-radius: 6px; }
+	tbody tr:nth-child(even) td { background: #f7f9f9; }
+	td.c, th.c { text-align: center; }
+	.yes { color: #146c2e; font-weight: 700; }
+	.no { color: #9aa3a1; }
+	.part { color: #7a5200; font-weight: 600; }
+	.win td { background: #f4f7d2 !important; }
+
+	.chip { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 8.4pt; font-weight: 700; white-space: nowrap; }
+	.c-acc { background: #dcefe9; color: #0b4a3d; }
+	.c-visa { background: #f1f4c4; color: #4a4e07; }
+	.c-jobs { background: #dde8f6; color: #173d6b; }
+	.c-pt { background: #fbe6d4; color: #7a3a09; }
+
+	.callout { background: var(--bg); border-radius: 8px; padding: 10px 14px; margin: 8px 0 12px; break-inside: avoid; }
+	.callout p:last-child { margin: 0; }
+	.note { color: var(--muted); font-size: 9pt; }
+
+	.steps { counter-reset: step; list-style: none; padding: 0; }
+	.steps > li { counter-increment: step; position: relative; padding: 0 0 8px 34px; break-inside: avoid; }
+	.steps > li::before {
+		content: counter(step);
+		position: absolute; left: 0; top: 0;
+		width: 24px; height: 24px; border-radius: 50%;
+		background: var(--lime); color: var(--ink-2);
+		font-weight: 800; font-size: 9.5pt; text-align: center; line-height: 24px;
+	}
+	.steps > li > strong:first-child { display: block; color: var(--ink); font-size: 10.6pt; }
+	.steps ul { margin-top: 3px; }
+
+	figure { margin: 10px 0 14px; break-inside: avoid; }
+	figure img { width: 100%; border: 1px solid var(--line); border-radius: 6px; display: block; }
+	figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 4px; }
+	.diagram { border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+	.diagram svg { width: 100%; height: auto; display: block; }
+	.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+	.grid-2 figure { margin: 0; }
+	.page-break { break-before: page; }
+	.muted { color: var(--muted); }
+	.q { font-weight: 700; color: var(--ink); }
+
+	@media screen {
+		body { background: #e9eceb; padding: 24px 12px; }
+		main { background: #fff; padding: 18mm 16mm; border-radius: 8px; box-shadow: 0 2px 18px rgba(0,0,0,.08); }
+	}
+</style>
+</head>
+<body>
+<main>
+
+<header class="cover">
+	<div class="eyebrow">Unigator · UniHive understanding task</div>
+	<h1>UniHive on WordPress</h1>
+	<p class="sub">How I understand UniHive, how it should differ from YMGrad, and how I would build it in WordPress.</p>
+	<p class="byline">{{BYLINE}}</p>
+</header>
+
+<section class="tldr">
+	<h3>Summary</h3>
+	<ul>
+		<li><strong>UniHive is Unigator's members-only help board</strong> for four practical needs students face once they have been admitted: <strong>Accommodation, Work Visa, Jobs and Part-time Jobs</strong>. It is the "we also connect you to each other" part of the Unigator story.</li>
+		<li><strong>Only Pro and Premium members can read posts, see contact details and create posts.</strong> Visitors and Free members see a teaser (what's inside, live post counts, an upgrade button), so UniHive helps sell membership instead of giving it away.</li>
+		<li><strong>It should not copy YMGrad.</strong> YMGrad's forum is an open, uncategorised feed that feeds an agency's paid counselling. UniHive is a structured, moderated, time-limited noticeboard with a strict no-agents rule, because the posts themselves are what members pay for.</li>
+		<li><strong>Build: custom post type + taxonomy + custom fields</strong> in one small plugin, with <strong>Paid Memberships Pro (free)</strong> handling plans and payments. Forum plugins are built for threaded discussion, which is a different job.</li>
+		<li>To check the plan holds up, <strong>I built a small working prototype</strong> of it (screens in Appendix A). It runs locally with one command.</li>
+	</ul>
+</section>
+
+<!-- ============================================================ -->
+<h2><span class="num">1</span>How I understand UniHive in the context of Unigator</h2>
+
+<p>Unigator's mission is <em>"Every student deserves a guide, no matter where they start."</em> The Our Story page is written for students who don't have a network abroad, and it describes UniHive as the place for <em>"a job lead, a place to live, or just a familiar voice"</em>. The site already covers the journey with <strong>Pre-application/Search → Application tracker → Student Life → Post Graduation</strong>, plus paid services (Housing Help, Visa Checklist, etc.).</p>
+<p>So my reading is: <strong>Unigator's own content and services give the guidance, and UniHive gives the network.</strong> Members who are a year or two ahead share rooms, visa timelines, referrals and part-time openings with members who are just arriving. Most of UniHive's value is in the <em>Student Life</em> and <em>Post Graduation</em> stages, which are exactly where a student with no contacts abroad struggles most.</p>
+
+<h3>Who can view posts?</h3>
+<table>
+	<thead><tr><th>Audience</th><th class="c">UniHive page</th><th class="c">Read posts</th><th class="c">Contact details</th><th class="c">Create posts</th><th class="c">Moderate</th></tr></thead>
+	<tbody>
+		<tr><td>Visitor (logged out)</td><td class="c part">Teaser</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td></tr>
+		<tr><td>Free member</td><td class="c part">Teaser + upgrade</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td><td class="c no">No</td></tr>
+		<tr><td><strong>Pro member</strong></td><td class="c yes">Full</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c no">Own posts</td></tr>
+		<tr><td><strong>Premium member</strong></td><td class="c yes">Full</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c no">Own posts</td></tr>
+		<tr><td>Moderator / Admin</td><td class="c yes">Full</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c yes">Yes</td><td class="c yes">All posts</td></tr>
+	</tbody>
+</table>
+<p><strong>Viewing is limited to Pro and Premium members</strong> (plus staff). There are two reasons:</p>
+<ol>
+	<li><strong>The posts are the paid value.</strong> If anyone can read them, there is little reason to upgrade.</li>
+	<li><strong>The posts contain students' phone numbers and emails.</strong> Keeping them behind a paid login protects members from scrapers, spammers and fake "agents".</li>
+</ol>
+<p>The page itself stays public as a <strong>teaser</strong>. It shows the four categories, how many live posts each one has, and a clear upgrade/login button, so UniHive still sells membership and can still be found.</p>
+
+<h3>Who can create posts?</h3>
+<p><strong>Logged-in Pro and Premium members with an active plan.</strong> They post through a simple front-end form and never need wp-admin. They can delete their own posts and renew them when they expire. If a plan lapses, the member loses the ability to read and post automatically. Moderators and admins can also create posts, for example a pinned "How to spot a rental scam" guide in Accommodation.</p>
+<p class="note">One thing I'd confirm with you: should Premium get anything extra in UniHive (e.g. pinned or highlighted posts, more active posts at a time)? The build supports this, but the brief treats Pro and Premium the same.</p>
+
+<h3>The four categories, and why these four</h3>
+<table>
+	<thead><tr><th style="width:20%">Category</th><th style="width:32%">Typical posts</th><th style="width:14%">Journey stage</th><th>Why it gets its own category</th></tr></thead>
+	<tbody>
+		<tr><td><span class="chip c-acc">Accommodation</span></td><td>Rooms, flatshares, sublets, flatmate searches, "is this landlord genuine?"</td><td>Pre-arrival, Student Life</td><td>The first and most urgent need, and the one with the most scams. The founder's own story (lost deposits) is exactly why trust matters most here.</td></tr>
+		<tr><td><span class="chip c-visa">Work Visa</span></td><td>Post-study work routes (UK Graduate Route, Canada PGWP, Australia 485, Germany's job-seeker permit), sponsorship, real timelines and documents</td><td>Post Graduation</td><td>High-stakes, country-specific and time-sensitive. Peers' real timelines are hard to find anywhere else. Posts should be <em>experiences</em>, not paid advice (see risks).</td></tr>
+		<tr><td><span class="chip c-jobs">Jobs</span></td><td>Graduate and full-time roles, referrals, sponsorship-friendly employers, interview experiences</td><td>Post Graduation</td><td>Referrals travel through networks, which is exactly what Unigator's audience lacks.</td></tr>
+		<tr><td><span class="chip c-pt">Part-time Jobs</span></td><td>Campus jobs, weekend and holiday work, tutoring, honest agency reviews</td><td>Student Life</td><td>Kept separate from Jobs because the audience (current students), the urgency (rent is due now) and the rules are different: student visas cap working hours (e.g. 20 h/week in UK term time, 48 h/fortnight in Australia).</td></tr>
+	</tbody>
+</table>
+<p><strong>Why only four:</strong> they cover the practical, peer-to-peer problems that Unigator's guides and services can't solve alone. Keeping it to four makes filtering obvious and moderation manageable. Everything else already has a home on the site: events go to <em>Events and Fairs / Webinars</em>, general chat to <em>Groups</em>, and admissions help to <em>Blog</em> and <em>Book Online</em>.</p>
+<div class="callout"><p><strong>Observation from the Wix site:</strong> the current UniHive page shows <em>Jobs, Work visas, Events and activities, Accommodations</em>. The brief replaces <em>Events and activities</em> with <em>Part-time Jobs</em>. I agree with the change: events are already covered by the Events pages, and part-time work is one of the most common day-to-day needs for students.</p></div>
+
+<!-- ============================================================ -->
+<h2><span class="num">2</span>How UniHive should be different from YMGrad</h2>
+<p><strong>What I saw on YMGrad Discussions:</strong></p>
+<ul>
+	<li>A single chronological feed with a "What's on your mind?" box, photo and video uploads, likes, comment threads and a "Trending Posts" sidebar. There are no categories.</li>
+	<li>Anyone can read, and posting needs a free login.</li>
+	<li>Recent posts mix H-1/J-1 visa-slot alerts, "looking for a job in pharma", research-partner requests and one-line greetings.</li>
+	<li>Several replies are generic offers such as "Available, I can help", which is the pattern agents and scammers use.</li>
+	<li>YMGrad is an agency (the nav promotes "Book Counseling Session"), so the forum works as <strong>top-of-funnel lead generation</strong>.</li>
+</ul>
+<p>Unigator is a <strong>membership resource platform, not an agency</strong>, so UniHive has a different job. It is a <strong>reason to join and stay</strong>, and it must be trustworthy enough to be worth paying for.</p>
+<table>
+	<thead><tr><th style="width:18%"></th><th style="width:38%">YMGrad Discussions</th><th>UniHive</th></tr></thead>
+	<tbody>
+		<tr><td><strong>Business role</strong></td><td>Free community that drives leads to paid counselling</td><td>A core benefit of Pro/Premium membership (conversion and retention)</td></tr>
+		<tr><td><strong>Access</strong></td><td>Public reading; free sign-up to post</td><td>Pro/Premium read and post; everyone else sees a teaser</td></tr>
+		<tr><td><strong>Scope</strong></td><td>Anything study-abroad related</td><td>Accommodation, Work Visa, Jobs, Part-time Jobs only</td></tr>
+		<tr><td><strong>Post format</strong></td><td>Free-text status update</td><td>Structured: category, title, description, city, contact method</td></tr>
+		<tr><td><strong>Finding things</strong></td><td>Scroll the feed, trending, search</td><td>Category tabs, search, "My posts"</td></tr>
+		<tr><td><strong>Interaction</strong></td><td>Likes and public comment threads</td><td>Direct contact through the poster's chosen method, plus a Report button (comments could come later)</td></tr>
+		<tr><td><strong>Freshness</strong></td><td>Old posts stay forever</td><td>Posts expire after 30 days; the owner can renew</td></tr>
+		<tr><td><strong>Trust &amp; safety</strong></td><td>Open replies; agents can pitch freely</td><td>Paid members only, no-agents rule, first post approved, 3 reports auto-hide a post, safety tips on every post</td></tr>
+	</tbody>
+</table>
+<p><strong>What I would borrow from YMGrad:</strong> how easy it is to post (one box, under a minute), the mobile-friendly card layout, search, and visible activity (post counts per category) so the board feels alive.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">3</span>How I would implement UniHive in WordPress</h2>
+
+<h3>Which approach</h3>
+<table>
+	<thead><tr><th style="width:22%"></th><th style="width:26%">Forum plugin<br><span style="font-weight:400">(bbPress, wpForo)</span></th><th style="width:26%">Classifieds plugin<br><span style="font-weight:400">(e.g. Classified Listing, WP Adverts)</span></th><th>Custom post type + fields<br><span style="font-weight:400">(recommended)</span></th></tr></thead>
+	<tbody>
+		<tr><td><strong>Fits a UniHive post?</strong></td><td class="part">Built for threads and replies; a contact method needs extra work</td><td class="yes">Listings with fields</td><td class="yes">Exactly the fields we need</td></tr>
+		<tr><td><strong>Pro/Premium only</strong></td><td>Via usergroups/roles + membership plugin</td><td>Via membership plugin; the plugin's own "members" model can clash</td><td>One access function tied to PMPro levels</td></tr>
+		<tr><td><strong>4 category filters</strong></td><td>4 sub-forums (navigation, not filters)</td><td class="yes">Built in</td><td class="yes">Taxonomy + tabs</td></tr>
+		<tr><td><strong>Front-end posting</strong></td><td class="yes">Built in</td><td class="yes">Built in</td><td>One small custom form</td></tr>
+		<tr><td><strong>Moderation &amp; expiry</strong></td><td>Moderation yes; expiry no</td><td class="yes">Usually both</td><td class="yes">WP statuses, admin list, daily expiry job</td></tr>
+		<tr><td><strong>Weight / lock-in</strong></td><td>Own templates, extra tables (wpForo)</td><td>Prices, payments, maps and paid add-ons we don't need</td><td class="yes">Nothing extra; core WordPress only</td></tr>
+	</tbody>
+</table>
+<p><strong>My choice: a custom post type <code>unihive_post</code>, a taxonomy <code>unihive_category</code> and post meta, in one small plugin.</strong></p>
+<ul>
+	<li>A UniHive post is a <em>listing</em> (what, where, how to reach me, until when), not a <em>discussion</em>.</li>
+	<li>WordPress core already provides what we need: the admin list table, Pending/Published/Draft statuses, Trash, roles and capabilities.</li>
+	<li>The codebase stays small, with no premium add-ons and nothing to fight against.</li>
+</ul>
+<p><strong>Fallbacks:</strong> if the client later wants open threaded discussion, <strong>wpForo</strong> (free usergroups and permissions) is my plan B. If there were no developer time at all, a free classifieds plugin is plan C.</p>
+
+<figure class="diagram">
+<svg viewBox="0 0 680 318" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Inter, sans-serif" font-size="11">
+	<defs>
+		<marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f3430"/></marker>
+	</defs>
+	<!-- column labels -->
+	<text x="20" y="18" font-size="9.5" font-weight="700" fill="#6f7a0f" letter-spacing="1">WHO</text>
+	<text x="176" y="18" font-size="9.5" font-weight="700" fill="#6f7a0f" letter-spacing="1">ACCESS CHECK</text>
+	<text x="376" y="18" font-size="9.5" font-weight="700" fill="#6f7a0f" letter-spacing="1">WHAT THEY GET</text>
+
+	<!-- who -->
+	<rect x="20" y="32" width="130" height="44" rx="8" fill="#eff1f2" stroke="#d7dddc"/>
+	<text x="85" y="51" text-anchor="middle" font-weight="700" fill="#092421">Visitor / Free</text>
+	<text x="85" y="66" text-anchor="middle" fill="#56625f" font-size="10">not logged in or no plan</text>
+
+	<rect x="20" y="104" width="130" height="44" rx="8" fill="#e4ea6b" stroke="#c9cf4d"/>
+	<text x="85" y="123" text-anchor="middle" font-weight="700" fill="#092421">Pro / Premium</text>
+	<text x="85" y="138" text-anchor="middle" fill="#3f4410" font-size="10">active PMPro level</text>
+
+	<rect x="20" y="186" width="130" height="44" rx="8" fill="#0f3430"/>
+	<text x="85" y="205" text-anchor="middle" font-weight="700" fill="#fff">Moderator / Admin</text>
+	<text x="85" y="220" text-anchor="middle" fill="#cfe0dc" font-size="10">UniHive-only role</text>
+
+	<!-- access check -->
+	<rect x="176" y="62" width="172" height="62" rx="8" fill="#fff" stroke="#0f3430" stroke-width="1.4"/>
+	<text x="262" y="82" text-anchor="middle" font-weight="700" fill="#092421">unihive_user_can_access()</text>
+	<text x="262" y="98" text-anchor="middle" fill="#56625f" font-size="10">pmpro_hasMembershipLevel(</text>
+	<text x="262" y="112" text-anchor="middle" fill="#56625f" font-size="10">['Pro','Premium'])</text>
+
+	<line x1="150" y1="54" x2="176" y2="80" stroke="#0f3430" stroke-width="1.3" marker-end="url(#a)"/>
+	<line x1="150" y1="126" x2="176" y2="106" stroke="#0f3430" stroke-width="1.3" marker-end="url(#a)"/>
+
+	<!-- outcomes -->
+	<rect x="376" y="32" width="284" height="44" rx="8" fill="#eff1f2" stroke="#d7dddc"/>
+	<text x="390" y="51" font-weight="700" fill="#092421">No → Teaser <tspan font-weight="400" fill="#56625f" font-size="10">(post URLs redirect here)</tspan></text>
+	<text x="390" y="66" fill="#56625f" font-size="10">4 categories, live counts, "Upgrade" and "Log in" buttons</text>
+	<line x1="348" y1="80" x2="376" y2="58" stroke="#0f3430" stroke-width="1.3" marker-end="url(#a)"/>
+
+	<rect x="376" y="96" width="284" height="72" rx="8" fill="#fbfcf2" stroke="#c9cf4d"/>
+	<text x="390" y="115" font-weight="700" fill="#092421">Yes → Board  [unihive]</text>
+	<text x="390" y="131" fill="#3b4744" font-size="10">Tabs: All · Accommodation · Work Visa · Jobs · Part-time</text>
+	<text x="390" y="145" fill="#3b4744" font-size="10">Search · "Create a post" form · My posts (delete/renew)</text>
+	<text x="390" y="159" fill="#3b4744" font-size="10">Single post: contact details, safety tip, Report</text>
+	<line x1="348" y1="106" x2="376" y2="126" stroke="#0f3430" stroke-width="1.3" marker-end="url(#a)"/>
+
+	<rect x="376" y="186" width="284" height="44" rx="8" fill="#0f3430"/>
+	<text x="390" y="205" font-weight="700" fill="#fff">wp-admin → UniHive</text>
+	<text x="390" y="220" fill="#cfe0dc" font-size="10">Pending queue · Reported · Approve · Edit · Trash · Settings</text>
+	<line x1="150" y1="208" x2="376" y2="208" stroke="#0f3430" stroke-width="1.3" marker-end="url(#a)"/>
+
+	<!-- data band -->
+	<rect x="20" y="252" width="640" height="56" rx="8" fill="#fff" stroke="#d7dddc" stroke-dasharray="4 3"/>
+	<text x="34" y="270" font-size="9.5" font-weight="700" fill="#6f7a0f" letter-spacing="1">DATA (core WordPress, no extra tables)</text>
+	<text x="34" y="287" fill="#092421" font-size="10.2"><tspan font-weight="700">unihive_post</tspan> (CPT: title, description, author, status)  ·  <tspan font-weight="700">unihive_category</tspan> (4 fixed terms)</text>
+	<text x="34" y="301" fill="#092421" font-size="10.2">meta: contact method, contact value, city, expiry, reports  ·  daily WP-Cron job unpublishes expired posts</text>
+</svg>
+<figcaption>Figure 1. How access, pages and data fit together.</figcaption>
+</figure>
+
+<h3>Step by step</h3>
+<ol class="steps">
+	<li><strong>Set up membership plans (Paid Memberships Pro, free).</strong>
+		Create the levels <em>Free</em>, <em>Pro</em> and <em>Premium</em> with their prices and the checkout/account pages. PMPro handles recurring billing, expiry and cancellations, so access follows payment automatically.
+		<span class="note">Payment gateway to confirm: PMPro's built-in gateways are Stripe and PayPal. For Indian cards and UPI, Razorpay is the usual choice and needs a third-party integration. Existing Wix members can be imported via CSV, but their subscriptions have to be re-created because card details can't be moved.</span></li>
+	<li><strong>Create the data model in a small plugin.</strong>
+		Register the CPT <code>unihive_post</code> as <em>not public</em>: excluded from search, sitemaps, the REST API and feeds, with no archive. Register the taxonomy <code>unihive_category</code> with the four fixed terms (members can't add new ones), plus meta fields for contact method, contact value, city, expiry and reports. <span class="note">Advanced Custom Fields (free) is an option if the team prefers to manage fields in the UI.</span></li>
+	<li><strong>Restrict UniHive to Pro/Premium.</strong>
+		Every check goes through one function, <code>unihive_user_can_access()</code>, which calls <code>pmpro_hasMembershipLevel(['Pro','Premium'])</code>. It is used in four places:
+		<ul>
+			<li>the <code>[unihive]</code> page shows the teaser or the board;</li>
+			<li><code>template_redirect</code> sends non-members away from single-post URLs;</li>
+			<li>contact details are only ever rendered for members;</li>
+			<li>UniHive pages are marked <code>noindex</code> and excluded from page caching.</li>
+		</ul>
+		Keeping it to one function means a future switch to another membership plugin changes one line.</li>
+	<li><strong>Add the category filters.</strong>
+		Tabs for <em>All · Accommodation · Work Visa · Jobs · Part-time Jobs · My posts</em> are plain links (<code>?hive_cat=jobs</code>) that run an indexed taxonomy query. A search box, pagination (10 per page) and per-category counts complete the board. Using a taxonomy instead of a custom field gives fast queries plus the admin filter and counts for free.</li>
+	<li><strong>Let members create posts (title, description, contact method).</strong>
+		A front-end form asks for:
+		<ul>
+			<li>category (one of four) and title;</li>
+			<li>description and city (optional);</li>
+			<li>contact method (<em>Email, WhatsApp, Phone or a Link</em>) and its value, each validated (a real email, a phone number with country code, an https link);</li>
+			<li>a "student, not an agent" confirmation.</li>
+		</ul>
+		Behind the scenes it uses a nonce, an access check, sanitisation, a hidden honeypot field, a limit of 3 posts a day and at most 2 links. <strong>A member's first post waits for approval; once one is approved, their later posts go live immediately.</strong></li>
+	<li><strong>Moderate and delete from the admin panel.</strong>
+		UniHive gets its own admin menu:
+		<ul>
+			<li>the list shows State, City, Contact, Reports, Expiry and Category, with a category dropdown;</li>
+			<li>a <em>Pending</em> queue with a count bubble, and a <em>Reported</em> view;</li>
+			<li>a one-click <em>Approve</em>, plus the normal Edit, Trash and bulk actions;</li>
+			<li>a <strong>UniHive Moderator</strong> role, so volunteers or ambassadors can moderate without seeing anything else in wp-admin.</li>
+		</ul>
+		Members can report a post with a reason, and <strong>3 reports hide it automatically</strong> until a moderator reviews it. A daily job unpublishes posts after 30 days. The settings page covers the approval mode, expiry, daily limit and report threshold.</li>
+	<li><strong>Pages, navigation and emails.</strong> Add a "UniHive" page containing <code>[unihive]</code> to the main menu, a short rules page, an upgrade button that links to the PMPro levels page, and moderation emails sent via WP Mail SMTP.</li>
+	<li><strong>Test and launch.</strong> Run a role matrix (visitor, Free, Pro, Premium, lapsed member, moderator). Check that nothing leaks through the REST API, search, feeds, sitemaps or page cache. Test on mobile. Take a backup. Before launch, <strong>seed the board with 20–30 real posts</strong> from the team and ambassadors so the teaser counts aren't zero.</li>
+</ol>
+
+<h3>Free plugins I'd consider, and why</h3>
+<table>
+	<thead><tr><th style="width:28%">Plugin (free)</th><th style="width:20%">Role</th><th>Why</th></tr></thead>
+	<tbody>
+		<tr class="win"><td><strong>Paid Memberships Pro</strong></td><td>Plans, payments, access</td><td>Free core covers unlimited levels, recurring payments, expiry and content restriction, and has a simple API (<code>pmpro_hasMembershipLevel</code>) for UniHive to check.</td></tr>
+		<tr><td>Ultimate Member or Members</td><td>Alternative access</td><td>Role-based access if payments are handled elsewhere. UniHive can use the <code>unihive_access</code> capability instead of PMPro levels.</td></tr>
+		<tr><td>Advanced Custom Fields</td><td>Optional fields UI</td><td>Lets non-developers adjust fields later; not required.</td></tr>
+		<tr><td>WP Mail SMTP</td><td>Email delivery</td><td>Approval and report emails actually arrive instead of landing in spam.</td></tr>
+		<tr><td>Simple Cloudflare Turnstile</td><td>Bot protection</td><td>A privacy-friendly CAPTCHA for sign-up and login, and for the post form if spam gets past the built-in checks.</td></tr>
+		<tr><td>Wordfence</td><td>Security</td><td>Firewall and brute-force login protection for a site that stores member data.</td></tr>
+		<tr><td>UpdraftPlus</td><td>Backups</td><td>Scheduled off-site backups before and after launch.</td></tr>
+		<tr><td>WP Super Cache / LiteSpeed Cache</td><td>Performance</td><td>Caches public pages for visitors. Logged-in and UniHive pages are excluded so a member's view is never served to anyone else.</td></tr>
+	</tbody>
+</table>
+<p class="note">Deliberately not used: bbPress/wpForo, classifieds plugins and page builders. They would add features UniHive doesn't need and more to maintain.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">4</span>Concerns and risks, and how I'd handle them</h2>
+<table>
+	<thead><tr><th style="width:20%">Risk</th><th style="width:32%">Why it matters here</th><th>How I'd handle it</th></tr></thead>
+	<tbody>
+		<tr><td><strong>Scams</strong> (fake landlords, fake jobs, "visa agents")</td><td>Students abroad are the main target of deposit and job scams, and Unigator's own founder story includes lost deposits.</td><td>Paid-only posting; first-post approval; 3 reports auto-hide a post; a safety tip on every post ("view before you pay, never pay visa or job fees"); ban repeat offenders by cancelling their membership.</td></tr>
+		<tr><td><strong>Agents and regulated advice</strong></td><td>Unigator is not an agency. Giving immigration advice as a business is regulated in the UK, Canada and Australia.</td><td>A "share experiences, not paid services" rule and checkbox; a "Paid agent" report reason; a disclaimer in Work Visa, with links to official government pages.</td></tr>
+		<tr><td><strong>Spam and low-quality posts</strong></td><td>Empty or noisy posts (as seen on YMGrad) make a paid board feel worthless.</td><td>A structured form with minimum lengths; honeypot; 3 posts/day; 2 links max; Turnstile if needed; only four categories.</td></tr>
+		<tr><td><strong>Privacy of contact details</strong></td><td>Posts include phone numbers and emails of young people (India's DPDP Act 2023; GDPR for UK/EU users).</td><td>Contact details are visible to members only; authors are shown as "Priya S."; members can choose a link or form instead of their phone number; posts are <code>noindex</code> and expire; owners can delete their own posts.</td></tr>
+		<tr><td><strong>Paywall leaks</strong></td><td>WordPress can expose content through the REST API, RSS, search, sitemaps and page caches.</td><td>All of these are closed for the CPT, and the build is tested as a logged-out visitor (confirmed in the prototype).</td></tr>
+		<tr><td><strong>Moderation load</strong></td><td>Reviewing every post doesn't scale for a small team.</td><td>Only a member's first post is reviewed; reports surface problems automatically; expiry clears stale posts; a UniHive-only Moderator role for ambassadors; a Pending count in the menu.</td></tr>
+		<tr><td><strong>Performance</strong></td><td>Membership sites can't rely on full-page caching for logged-in users.</td><td>Indexed taxonomy queries; 10 posts per page; no heavy custom-field queries on the board; cache public pages only; add an object cache (Redis) if traffic grows. A CPT comfortably handles tens of thousands of posts.</td></tr>
+		<tr><td><strong>Stale posts</strong></td><td>Rooms get let and jobs get filled; old posts erode trust.</td><td>30-day expiry with a one-click renew for the owner, and a "No longer available" report reason.</td></tr>
+		<tr><td><strong>Empty board at launch</strong></td><td>A members-only board with three posts doesn't sell upgrades.</td><td>Seed 20–30 posts from the team and ambassadors, invite existing members, and show live counts on the teaser.</td></tr>
+	</tbody>
+</table>
+
+<h3>Questions I'd confirm before building</h3>
+<ul>
+	<li>Should <strong>Premium</strong> get UniHive extras (pinned posts, more active posts) over Pro?</li>
+	<li>Should Free members see <strong>post titles only</strong> (no contact details) to encourage upgrades?</li>
+	<li><strong>Replies/comments</strong> in v1, or direct contact only (my recommendation for launch)?</li>
+	<li>Which countries/cities matter most? A country filter could be the first addition after launch.</li>
+	<li>Payment gateway (Razorpay vs Stripe/PayPal), and how current Wix subscribers will move over.</li>
+	<li>Who moderates, and how fast should pending posts be reviewed?</li>
+</ul>
+
+<!-- ============================================================ -->
+<div class="page-break"></div>
+<h2><span class="num">A</span>Appendix: working prototype</h2>
+<p>To test the plan I built it as a self-contained WordPress plugin (<code>unihive/</code>, plain PHP and CSS, no dependencies). It uses Unigator's colours from the Wix site. An automated walkthrough checks each role (visitor, Free, Pro, Premium, moderator); the screenshots below come from that run.</p>
+
+<div class="grid-2">
+	<figure><img src="img/01-visitor-teaser.png" alt="UniHive teaser for visitors"><figcaption>Figure 2. Visitor / Free member: the teaser with the four categories, live counts and upgrade/login. No posts or contact details are shown; post URLs redirect here.</figcaption></figure>
+	<figure><img src="img/02-pro-board.png" alt="UniHive board for a Pro member"><figcaption>Figure 3. Pro/Premium member: "Create a post", category tabs with counts, search and "My posts".</figcaption></figure>
+</div>
+<div class="grid-2">
+	<figure><img src="img/06-create-form.png" alt="Create post form"><figcaption>Figure 4. Post form: category, title, description, city, contact method + value, rules confirmation.</figcaption></figure>
+	<figure><img src="img/04-single-post.png" alt="Single post with contact details"><figcaption>Figure 5. Single post: author shown as "Arjun N.", contact details (members only), safety tip, Report with reasons.</figcaption></figure>
+</div>
+<figure><img src="img/07-admin-list.png" alt="Admin moderation list"><figcaption>Figure 6. wp-admin as the UniHive Moderator (who sees only UniHive): pending count, State/Contact/Reports/Expiry columns, category filter, Pending and Reported views. Hovering a pending row shows one-click Approve.</figcaption></figure>
+<div class="grid-2">
+	<figure><img src="img/05-my-posts.png" alt="My posts"><figcaption>Figure 7. "My posts": each post's status, with Renew for expired posts and Delete.</figcaption></figure>
+	<figure><img src="img/10-mobile-board.png" alt="Mobile view" style="max-height:105mm;width:auto;margin:0 auto"><figcaption>Figure 8. Mobile layout.</figcaption></figure>
+</div>
+
+<h3>Run it yourself</h3>
+<p>Requires Node.js 20+. From the project folder run <code>npm start</code>. This starts WordPress locally via WordPress Playground, installs the plugin with demo members and posts, and opens <code>http://127.0.0.1:9400/unihive/</code>. A "View as" bar at the bottom switches between Visitor, Free, Pro, Premium, Moderator and Admin. On any existing WordPress site, upload <code>unihive.zip</code> under Plugins → Add New and add <code>[unihive]</code> to a page.</p>
+
+</main>
+</body>
+</html>
